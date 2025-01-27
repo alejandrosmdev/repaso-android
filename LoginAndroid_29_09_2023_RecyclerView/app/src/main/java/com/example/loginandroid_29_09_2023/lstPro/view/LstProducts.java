@@ -18,6 +18,7 @@ import com.example.loginandroid_29_09_2023.R;
 import com.example.loginandroid_29_09_2023.beans.Categoria;
 import com.example.loginandroid_29_09_2023.beans.Producto;
 import com.example.loginandroid_29_09_2023.lstPro.ContractListProducts;
+import com.example.loginandroid_29_09_2023.lstPro.adapters.CategoriaAdapter;
 import com.example.loginandroid_29_09_2023.lstPro.adapters.ProductoAdapter;
 import com.example.loginandroid_29_09_2023.lstPro.presenter.LstProductsPresenter;
 
@@ -26,8 +27,9 @@ import java.util.ArrayList;
 public class LstProducts extends AppCompatActivity implements ContractListProducts.View {
     private LstProductsPresenter lstProductsPresenter;
     private RecyclerView recyclerView;
-    private ProductoAdapter adapter;
-    private LinearLayout categoryButtonsContainer;
+    private ProductoAdapter productoAdapter;
+    private RecyclerView categoriesRecyclerView;
+    private CategoriaAdapter categoriaAdapter;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -42,17 +44,18 @@ public class LstProducts extends AppCompatActivity implements ContractListProduc
         lstProductsPresenter.listarProductos();
 
 
-        categoryButtonsContainer = findViewById(R.id.categoryButtonsContainer);
+        categoriesRecyclerView = findViewById(R.id.categoriesRecyclerView);
+        categoriesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         lstProductsPresenter.cargarCategorias();
     }
 
     @Override
     public void successProducts(ArrayList<Producto> productos) {
-        if (adapter == null) {
-            adapter = new ProductoAdapter(this, productos);
-            recyclerView.setAdapter(adapter);
+        if (productoAdapter == null) {
+            productoAdapter = new ProductoAdapter(this, productos);
+            recyclerView.setAdapter(productoAdapter);
         } else {
-            adapter.updateData(productos);
+            productoAdapter.updateData(productos);
         }
     }
 
@@ -63,11 +66,7 @@ public class LstProducts extends AppCompatActivity implements ContractListProduc
 
     @Override
     public void setCategorias(ArrayList<Categoria> categorias) {
-        for (Categoria categoria : categorias) {
-            Button button = new Button(this);
-            button.setText(categoria.getNombre());
-            button.setOnClickListener(v -> lstProductsPresenter.listarProductosPorCategoria(categoria.getId()));
-            categoryButtonsContainer.addView(button);
-        }
+        categoriaAdapter = new CategoriaAdapter(categorias, categoria -> lstProductsPresenter.listarProductosPorCategoria(categoria.getId()));
+        categoriesRecyclerView.setAdapter(categoriaAdapter);
     }
 }
